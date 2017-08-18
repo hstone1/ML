@@ -2,17 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="44b2fad8-e193-4de3-a783-50e14a7c5839" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/2048/2048.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/2048/src/Board.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/2048/src/Main.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/examples/Convolution/TestConvolution.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/examples/softmax/SoftmaxTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/speed grad.iml" afterPath="$PROJECT_DIR$/speed grad.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/backend/HMath.java" afterPath="$PROJECT_DIR$/src/backend/HMath.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/backend/Problem.java" afterPath="$PROJECT_DIR$/src/backend/Problem.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -105,8 +95,8 @@
       <file leaf-file-name="HMath.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/backend/HMath.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="37" column="36" lean-forward="true" selection-start-line="37" selection-start-column="36" selection-end-line="37" selection-end-column="36" />
+            <state relative-caret-position="414">
+              <caret line="26" column="5" lean-forward="true" selection-start-line="26" selection-start-column="5" selection-end-line="26" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -828,7 +818,7 @@
       <workItem from="1502717092416" duration="1332000" />
       <workItem from="1502718439703" duration="11799000" />
       <workItem from="1502918207392" duration="7000" />
-      <workItem from="1503072272759" duration="6587000" />
+      <workItem from="1503072272759" duration="6711000" />
     </task>
     <servers />
   </component>
@@ -865,7 +855,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="35894000" />
+    <option name="totallyTimeSpent" value="36018000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="-4" width="2495" height="1444" extended-state="6" />
@@ -1306,8 +1296,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/backend/HMath.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="37" column="36" lean-forward="true" selection-start-line="37" selection-start-column="36" selection-end-line="37" selection-end-column="36" />
+        <state relative-caret-position="414">
+          <caret line="26" column="5" lean-forward="true" selection-start-line="26" selection-start-column="5" selection-end-line="26" selection-end-column="5" />
           <folding />
         </state>
       </provider>

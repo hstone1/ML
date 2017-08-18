@@ -30,7 +30,7 @@ public class HMath {
         if (x > 20) {
             return 1.0;
         } else if (x < -20) {
-            return -1.0;
+            return 0.0;
         }
         double sx = x / 32;
         double s = 1;
