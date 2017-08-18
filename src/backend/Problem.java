@@ -16,6 +16,8 @@ public class Problem {
     private final byte TANH = 5;
     private final byte DOT = 6;
     private final byte SUB = 7;
+    private final byte EXP = 8;
+    private final byte DIV = 9;
 
     public Problem() {
         vals = new double[CAP];
@@ -75,6 +77,14 @@ public class Problem {
         return next++;
     }
 
+    public int div(int a, int b) {
+        if (next == cap) { expand(); }
+        vals[next] = vals[a] /vals[b];
+        operations[next] = DIV;
+        operationElements[next] = new int[]{a, b};
+        return next++;
+    }
+
     public int sum(int... arr) {
         if (next == cap) { expand(); }
         double s = vals[arr[0]];
@@ -103,6 +113,14 @@ public class Problem {
         if (next == cap) { expand(); }
         vals[next] = HMath.tanh(vals[a]);
         operations[next] = TANH;
+        operationElements[next] = new int[]{a};
+        return next++;
+    }
+
+    public int exp(int a) {
+        if (next == cap) { expand(); }
+        vals[next] = Math.exp(vals[a]);
+        operations[next] = EXP;
         operationElements[next] = new int[]{a};
         return next++;
     }
@@ -144,6 +162,10 @@ public class Problem {
                         derivs[ops[0]] += derivs[next] * vals[ops[1]];
                         derivs[ops[1]] += derivs[next] * vals[ops[0]];
                         break;
+                    case DIV:
+                        derivs[ops[0]] += derivs[next] / vals[ops[1]];
+                        derivs[ops[1]] -= derivs[next] * vals[ops[0]] / vals[ops[1]] / vals[ops[1]];
+                        break;
                     case SUM:
                         for (int i = 0; i < ops.length; i++) {
                             derivs[ops[i]] += derivs[next];
@@ -156,6 +178,9 @@ public class Problem {
                         break;
                     case TANH:
                         derivs[ops[0]] += derivs[next] * (1 - vals[next] * vals[next]);
+                        break;
+                    case EXP:
+                        derivs[ops[0]] += derivs[next] * vals[next];
                         break;
                     case DOT:
                         for (int i = 0; i < ops.length; i+=2) {
@@ -193,7 +218,59 @@ public class Problem {
 
 
 
+    public int[][] convolve(int[][] im, int[][] wts) {
+        int[][] out = new int[im.length + 1 - wts.length][im[0].length + 1 - wts[0].length];
 
+        int l1 = out.length, l2 = out[0].length;
+        int wl1 = wts.length, wl2 = wts[0].length;
+
+        int dotSize = wl1 * wl2;
+
+        while (next + l1 * l2 >= cap) {
+            expand();
+        }
+
+
+        for (int x = 0; x < l1; x++) {
+            for (int y = 0; y < l2; y++) {
+                int[] ops = new int[dotSize * 2];
+
+                double v = 0;
+                int i = 0;
+                for (int ix = 0; ix < wl1; ix++) {
+                    for (int iy = 0; iy < wl2; iy++) {
+                        int wt = wts[ix][iy];
+                        int img = im[ix + x][iy + y];
+
+                        v += vals[wt] * vals[img];
+                        ops[i++] = wt;
+                        ops[i++] = img;
+                    }
+                }
+
+                vals[next] = v;
+                operations[next] = DOT;
+                operationElements[next] = ops;
+                out[x][y] = next++;
+            }
+        }
+
+        return out;
+    }
+
+
+    public int[] div(int[] a, int b) {
+        int[] out = new int[a.length];
+        for (int i = 0;i < out.length;i++) {
+            out[i] = div(a[i], b);
+        }
+        return out;
+    }
+
+    public int[] softmax(int[] a) {
+        int[] ex = exp(a);
+        return div(ex, sum(ex));
+    }
 
     public int[] mult(int[][] mat, int[] vec) {
         int[] out = new int[mat.length];
@@ -227,6 +304,13 @@ public class Problem {
         return out;
     }
 
+    public int[] exp(int[] a) {
+        int[] out = new int[a.length];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = exp(a[i]);
+        }
+        return out;
+    }
 
 
     public int[] constant(double[] arr) {
@@ -251,7 +335,44 @@ public class Problem {
         return vals[a];
     }
 
+
+    public double[] get(int[] a) {
+        double[] out = new double[a.length];
+        for(int i = 0;i < out.length;i++) {
+            out[i] = get(a[i]);
+        }
+        return out;
+    }
+
+
+    public double[][] get(int[][] a) {
+        double[][] out = new double[a.length][];
+        for(int i = 0;i < out.length;i++) {
+            out[i] = get(a[i]);
+        }
+        return out;
+    }
+
+
     public double deriv(int a) {
         return derivs[a];
+    }
+
+
+    public double[] deriv(int[] a) {
+        double[] out = new double[a.length];
+        for(int i = 0;i < out.length;i++) {
+            out[i] = deriv(a[i]);
+        }
+        return out;
+    }
+
+
+    public double[][] deriv(int[][] a) {
+        double[][] out = new double[a.length][];
+        for(int i = 0;i < out.length;i++) {
+            out[i] = deriv(a[i]);
+        }
+        return out;
     }
 }
