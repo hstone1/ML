@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Board {
     public static int[][] start() {
         int[][] board = new int[4][4];
@@ -74,7 +76,99 @@ public class Board {
             }
         }
 
+        while (true) {
+            int x = (int) (Math.random() * 4);
+            int y = (int) (Math.random() * 4);
+            if (n[x][y] == 0) {
+                n[x][y] = 2;
+                break;
+            }
+        }
 
         return n;
+    }
+
+
+    public static boolean[] canPlay(int[][] board) {
+        boolean[] can = new boolean[]{false, false, false, false};
+
+        for (int row = 0; row < 4;row++) {
+            int a = 0;
+            int last = -1;
+            for (int i = 0; i < 4; i++) {
+                if (last == board[row][i]) {
+                    can[0] = true;
+                } else if (board[row][i] != 0) {
+                    if (a++ != i) {
+                        can[0] = true;
+                    }
+                    last = board[row][i];
+                }
+            }
+        }
+
+
+        for (int row = 0; row < 4;row++) {
+            int a = 0;
+            int last = -1;
+            for (int i = 0; i < 4; i++) {
+                if (last == board[i][row]) {
+                    can[1] = true;
+                }else if (board[i][row] != 0) {
+                    if (a++ != i) {
+                        can[1] = true;
+
+                    }
+                    last = board[i][row];
+                }
+            }
+        }
+
+
+        for (int row = 0; row < 4;row++) {
+            int a = 0;
+            int last = -1;
+            for (int i = 0; i < 4; i++) {
+                if (last == board[row][3 - i]) {
+                    can[2] = true;
+                }else if (board[row][3 - i] != 0) {
+                    if (a++ != i) {
+                        can[2] = true;
+                    }
+                    last = board[row][3 - i];
+                }
+            }
+        }
+
+
+        for (int row = 0; row < 4;row++) {
+            int a = 0;
+            int last = -1;
+            for (int i = 0; i < 4; i++) {
+                if (last == board[3 - i][row]) {
+                    can[3] = true;
+                }else if (board[3 - i][row] != 0) {
+                    if (a++ != i) {
+                        can[3] = true;
+                    }
+                    last = board[3 - i][row];
+                }
+            }
+        }
+
+
+        return can;
+    }
+
+    public static double[][] toTrainable(int[][] b) {
+        double[][] out = new double[4][4];
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                if (b[x][y] != 0) {
+                    out[x][y] = Math.log(b[x][y]) / 4;
+                }
+            }
+        }
+        return out;
     }
 }
