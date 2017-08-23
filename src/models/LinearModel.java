@@ -7,8 +7,7 @@ import utils.Weights;
  * Created by henry on 8/14/17.
  */
 public class LinearModel implements Model{
-    protected Model[] layers;
-
+    Model[] layers;
 
     public LinearModel(Model... layers) {
         this.layers = layers;
@@ -38,7 +37,7 @@ public class LinearModel implements Model{
         for (Model layer : layers) {
             int start = end;
             end += layer.neededWeights();
-            layer.setWeights(Weights.rip(weights, start, end - start));
+            layer.setWeights(Weights.rip1(weights, start, end - start));
         }
     }
 }
