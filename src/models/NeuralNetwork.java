@@ -5,15 +5,11 @@ package models;
  */
 public class NeuralNetwork extends LinearModel {
     public NeuralNetwork(int... lSize) {
-        super(generateModels(lSize));
-    }
-
-    private static Model[] generateModels(int... lSize) {
-        Model[] layers = new Model[lSize.length - 1];
+        this.layers = new Model[lSize.length - 1];
         for (int i = 0;i < lSize.length - 2; i++) {
             layers[i] = new DenseLayer(lSize[i], lSize[i + 1], Activation.TANH);
         }
         layers[layers.length - 1] = new DenseLayer(lSize[lSize.length - 2], lSize[lSize.length - 1], Activation.LINEAR);
-        return layers;
+
     }
 }

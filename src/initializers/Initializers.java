@@ -14,10 +14,10 @@ public class Initializers {
     };
 
     public static Initializer uniformSmall = () -> {
-        return r.nextDouble() - 0.2;
+        return r.nextDouble() - 0.5;
     };
 
     public static Initializer normalSmall = () -> {
-        return r.nextGaussian() * 0.2;
+        return r.nextGaussian() * 0.5;
     };
 }

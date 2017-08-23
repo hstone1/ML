@@ -18,6 +18,7 @@ public class DenseLayer implements Model {
     public DenseLayer(int inputSize, int outputSize, Activation act) {
         this.inputSize = inputSize;
         this.outputSize = outputSize;
+
         this.act = act;
     }
 
@@ -32,7 +33,6 @@ public class DenseLayer implements Model {
         int[] res = p.add(p.mult(mult, input), bias);
         switch (act) {
             case TANH: return p.tanh(res);
-            case SOFTPLUS: return p.softplus(res);
             default: return res;
         }
     }
@@ -40,6 +40,6 @@ public class DenseLayer implements Model {
     @Override
     public void setWeights(int[] weights) {
         mult = Weights.rip2(weights, 0, outputSize, inputSize);
-        bias = Weights.rip1(weights, inputSize * outputSize, outputSize);
+        bias = Weights.rip(weights, inputSize * outputSize, outputSize);
     }
 }

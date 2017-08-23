@@ -1,19 +1,12 @@
 package models;
 
 import backend.Problem;
-import error.ErrorFunction;
-import error.MeanSquaredError;
 import initializers.Initializer;
 import initializers.Initializers;
 import optimizers.Optimizer;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
 public class Trainer {
     private static Initializer def = Initializers.normal;
-    private static ErrorFunction error = new MeanSquaredError();
 
     public double[] weights;
     Model m;
@@ -30,7 +23,7 @@ public class Trainer {
         this(m, def);
     }
 
-    public double train(double[][] X, double[][] Y, Optimizer opt, ErrorFunction e) {
+    public double train(double[][] X, double[][] Y, Optimizer opt) {
         assert X.length == Y.length;
 
         Problem p = new Problem();
@@ -42,7 +35,8 @@ public class Trainer {
 
         int[] err = new int[y.length];
         for (int i = 0; i < y.length; i++) {
-            err[i] = e.error(p, y[i], m.compute(p, x[i]));
+            int[] error = p.sub(y[i], m.compute(p, x[i]));
+            err[i] = p.dot(error, error);
         }
 
         int l = p.mult(p.sum(err), p.constant(1.0 / X.length));
@@ -56,28 +50,5 @@ public class Trainer {
         weights = opt.optimize(weights, derivs);
 
         return p.get(l);
-    }
-
-    public double train(double[][] X, double[][] Y, Optimizer opt) {
-        return train(X, Y, opt, error);
-    }
-
-    public double[] predict(double[] in) {
-        Problem p = new Problem();
-        int[] wts = p.constant(weights);
-        m.setWeights(wts);
-        return p.get(m.compute(p, p.constant(in)));
-    }
-
-    public void save(String filename) {
-        File f = new File(filename);
-        try {
-            FileWriter w = new FileWriter(f);
-            for (double weight : weights) {
-                w.write(Double.toString(weight) + '\n');
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
