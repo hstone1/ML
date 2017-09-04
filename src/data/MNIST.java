@@ -1,5 +1,9 @@
 package data;
 
+import javafx.embed.swing.JFXPanel;
+
+import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 
 /**
@@ -94,5 +98,29 @@ public class MNIST {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void draw(double[][] data) {
+        new ImageDrawer(data);
+    }
+}
+
+class ImageDrawer extends JFrame{
+    double[][] dat;
+
+    public ImageDrawer(double[][] dat) {
+        this.dat = dat;
+        setSize(400, 400);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setVisible(true);
+    }
+
+    public void paint(Graphics g) {
+        for (int x = 0; x < dat.length; x++) {
+            for (int y = 0; y < dat[0].length; y++) {
+                g.setColor(new Color(0, 0, 0, (float) dat[x][y]));
+                g.fillRect(y * 400 / 28, x * 400 / 28, 400 / 28, 400 / 28);
+            }
+        }
     }
 }

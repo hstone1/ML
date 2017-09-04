@@ -90,7 +90,7 @@ public class MnistTest {
             double[] weights = Weights.load("data/conv_digit_weights5-142_error.dat");
             int corr = 0;
 
-            for (int i = 0;i < X.length;i++) {
+            for (int i = 2000;i < 3000;i++) {
                 Problem p = new Problem();
                 int[] wts = p.constant(weights);
 
@@ -99,7 +99,8 @@ public class MnistTest {
                 int m = argmax(p.get(pred));
                 corr += (m == argmax(Y[i]) ? 1 : 0);
                 if (m != argmax(Y[i])) {
-                    System.out.println(i);
+                    MNIST.draw(X[i]);
+                    System.out.println(i + "\t" + m + "\t" + argmax(Y[i]));
                 }
             }
             System.out.println(corr / 10000.0);
