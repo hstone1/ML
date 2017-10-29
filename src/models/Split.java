@@ -41,12 +41,12 @@ public class Split implements Model{
     }
 
     @Override
-    public void setWeights(int[] weights) {
+    public void setWeights(Problem p, int[] weights) {
         int end = 0;
         for (Model m : models) {
             int start = end;
             end += m.neededWeights();
-            m.setWeights(Weights.rip1(weights, start, end - start));
+            m.setWeights(p, Weights.rip1(weights, start, end - start));
         }
     }
 }

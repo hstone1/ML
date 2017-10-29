@@ -1,7 +1,10 @@
 package optimizers;
 
+import java.util.Arrays;
+
 public class Adagrad implements Optimizer{
     public double lr;
+    public double momentum;
 
     public Adagrad(double lr) {
         this.lr = lr;
@@ -13,7 +16,7 @@ public class Adagrad implements Optimizer{
 
         double mag = 0;
         for(int i = 0; i < nw.length; i++) {
-            mag += weights[i] * weights[i];
+            mag += derivs[i] * derivs[i];
         }
         mag = Math.sqrt(mag);
         double tlr = lr / mag;

@@ -32,12 +32,12 @@ public class LinearModel implements Model{
     }
 
     @Override
-    public void setWeights(int[] weights) {
+    public void setWeights(Problem p, int[] weights) {
         int end = 0;
         for (Model layer : layers) {
             int start = end;
             end += layer.neededWeights();
-            layer.setWeights(Weights.rip1(weights, start, end - start));
+            layer.setWeights(p, Weights.rip1(weights, start, end - start));
         }
     }
 }

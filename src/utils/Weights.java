@@ -15,11 +15,12 @@ public class Weights {
         return out;
     }
 
-    public static int[][] rip2(int[] arr, int start, int height, int width) {
-        int[][] out = new int[height][width];
-        int l = height * width;
-        for (int i = 0;i < l; i++) {
-            out[i / width][i % width] = arr[i + start];
+    public static int[][] rip2(int[] arr, int start, int d1, int d2) {
+        int[][] out = new int[d1][d2];
+        for (int i1 = 0; i1 < d1; i1++) {
+            for (int i2 = 0; i2 < d2; i2++) {
+                    out[i1][i2] = arr[start++];
+            }
         }
         return out;
     }
@@ -29,7 +30,7 @@ public class Weights {
         for (int i1 = 0; i1 < d1; i1++) {
             for (int i2 = 0; i2 < d2; i2++) {
                 for (int i3 = 0; i3 < d3; i3++) {
-                    out[i1][i2][i3] = arr[start + i1 * d2 * d3 + i2 * d3 + i3];
+                    out[i1][i2][i3] = arr[start++];
                 }
             }
         }
@@ -42,13 +43,87 @@ public class Weights {
             for (int i2 = 0; i2 < d2; i2++) {
                 for (int i3 = 0; i3 < d3; i3++) {
                     for (int i4 = 0; i4 < d4; i4++) {
-                        out[i1][i2][i3][i4] = arr[start + i1 * d2 * d3 * d4 + i2 * d3 * d4 + i3 * d4 + i4];
+                        out[i1][i2][i3][i4] = arr[start++];
                     }
                 }
             }
         }
         return out;
     }
+
+    public static int[][][][] reshape(int[] arr, int d1, int d2, int d3, int d4) {
+        return rip4(arr, 0, d1, d2, d3, d4);
+    }
+
+    public static int[][][] reshape(int[] arr, int d1, int d2, int d3) {
+        return rip3(arr, 0, d1, d2, d3);
+    }
+
+    public static int[][] reshape(int[] arr, int d1, int d2) {
+        return rip2(arr, 0, d1, d2);
+    }
+
+    public static int[] reshape(int[][] arr) {
+        int d1 = arr.length;
+        int d2 = arr[0].length;
+
+        int[] out = new int[d1 * d2];
+        int start = 0;
+
+        for (int i1 = 0; i1 < d1; i1++) {
+            for (int i2 = 0; i2 < d2; i2++) {
+                out[start++] = arr[i1][i2];
+            }
+        }
+
+        return out;
+    }
+
+    public static int[] reshape(int[][][] arr) {
+        int d1 = arr.length;
+        int d2 = arr[0].length;
+        int d3 = arr[0][0].length;
+
+        int[] out = new int[d1 * d2 * d3];
+        int start = 0;
+
+        for (int i1 = 0; i1 < d1; i1++) {
+            for (int i2 = 0; i2 < d2; i2++) {
+                for (int i3 = 0; i3 < d3; i3++) {
+                    out[start++] = arr[i1][i2][i3];
+                }
+            }
+        }
+
+        return out;
+    }
+
+    public static int[] reshape(int[][][][] arr) {
+        int d1 = arr.length;
+        int d2 = arr[0].length;
+        int d3 = arr[0][0].length;
+        int d4 = arr[0][0][0].length;
+
+
+        int[] out = new int[d1 * d2 * d3 * d4];
+        int start = 0;
+
+        for (int i1 = 0; i1 < d1; i1++) {
+            for (int i2 = 0; i2 < d2; i2++) {
+                for (int i3 = 0; i3 < d3; i3++) {
+                    for (int i4 = 0; i4 < d4; i4++) {
+                        out[start++] = arr[i1][i2][i3][i4];
+                    }
+                }
+            }
+        }
+
+        return out;
+    }
+
+
+
+
 
     public static void save(double[] weights, String filename) {
         try {

@@ -1,6 +1,6 @@
 package data;
 
-import javafx.embed.swing.JFXPanel;
+import utils.Weights;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +20,25 @@ public class MNIST {
                 fr.read(r);
                 for (int j = 0; j < 28 * 28; j++) {
                     data[i][j / 28][j % 28] = ((r[j] & 0xff) / 255.0);
+                }
+            }
+            return data;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static double[][] trainDataFlat() {
+        try {
+            FileInputStream fr = new FileInputStream("data/train-images.idx3-ubyte");
+            fr.read(new byte[16]);
+            double[][] data = new double[60000][28 * 28];
+            for (int i = 0; i < 60000; i++) {
+                byte[] r = new byte[28 * 28];
+                fr.read(r);
+                for (int j = 0; j < 28 * 28; j++) {
+                    data[i][j] = ((r[j] & 0xff) / 255.0);
                 }
             }
             return data;
@@ -91,6 +110,25 @@ public class MNIST {
                 fr.read(r);
                 for (int j = 0; j < 28 * 28; j++) {
                     data[i][j / 28][j % 28] = ((r[j] & 0xff) / 255.0);
+                }
+            }
+            return data;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static double[][] testDataFlat() {
+        try {
+            FileInputStream fr = new FileInputStream("data/t10k-images.idx3-ubyte");
+            fr.read(new byte[16]);
+            double[][] data = new double[10000][28 * 28];
+            for (int i = 0; i < 10000; i++) {
+                byte[] r = new byte[28 * 28];
+                fr.read(r);
+                for (int j = 0; j < 28 * 28; j++) {
+                    data[i][j] = ((r[j] & 0xff) / 255.0);
                 }
             }
             return data;

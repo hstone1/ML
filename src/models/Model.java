@@ -8,5 +8,5 @@ import backend.Problem;
 public interface Model {
     int neededWeights();
     int[] compute(Problem p, int[] input);
-    void setWeights(int[] weights);
+    void setWeights(Problem p, int[] weights);
 }

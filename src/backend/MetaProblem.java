@@ -5,9 +5,8 @@ import java.util.Arrays;
 /**
  * Created by henry on 8/13/17.
  */
-public class Problem {
+public class MetaProblem {
     private static final int CAP = 100;
-
 
     private static final byte NOTHING = 0;
     private static final byte ADD = 1;
@@ -20,21 +19,22 @@ public class Problem {
     private static final byte EXP = 8;
     private static final byte DIV = 9;
     private static final byte DOT_ADD = 10;
-    private static final byte SOFTPLUS = 11;
     private static final byte SQUARE = 12;
     private static final byte SQUARE_VEC = 13;
     private static final byte SQRT = 14;
     private static final byte INVERT = 15;
     private static final byte LN = 16;
 
-    public Problem() {
-        vals = new double[CAP];
+    public MetaProblem(Problem p) {
+        this.p = p;
+        vals = new int[CAP];
         operations = new byte[CAP];
         operationElements = new int[CAP][];
     }
 
-    public Problem(int c) {
-        vals = new double[c];
+    public MetaProblem(Problem p, int c) {
+        this.p = p;
+        vals = new int[c];
         operations = new byte[c];
         operationElements = new int[c][];
         cap = c;
@@ -42,7 +42,7 @@ public class Problem {
 
     public void expand () {
         cap *= 2;
-        double[] vals = new double[cap];
+        int[] vals = new int[cap];
         byte[] operations = new byte[cap];
         int[][] operationElements = new int[cap][];
         System.arraycopy(this.vals, 0, vals, 0, this.vals.length);
@@ -53,17 +53,19 @@ public class Problem {
         this.operationElements = operationElements;
     }
 
-    private double[] vals;
-    private double[] derivs;
+    private int[] vals;
+    private int[] derivs;
     private byte[] operations;
     private int[][] operationElements;
+
+    Problem p;
 
     private int next = 0;
     public int cap = CAP;
 
     public int add(int a, int b) {
         if (next == cap) { expand(); }
-        vals[next] = vals[a] + vals[b];
+        vals[next] = p.add(vals[a], vals[b]);
         operations[next] = ADD;
         operationElements[next] = new int[]{a, b};
         return next++;
@@ -79,6 +81,13 @@ public class Problem {
 
     public int constant(double d) {
         if (next == cap) { expand(); }
+        vals[next] = p.constant(d);
+        operations[next] = NOTHING;
+        return next++;
+    }
+
+    public int constantFromP(int d) {
+        if (next == cap) { expand(); }
         vals[next] = d;
         operations[next] = NOTHING;
         return next++;
@@ -86,7 +95,7 @@ public class Problem {
 
     public int mult(int a, int b) {
         if (next == cap) { expand(); }
-        vals[next] = vals[a] * vals[b];
+        vals[next] = p.mult(vals[a], vals[b]);
         operations[next] = MULT;
         operationElements[next] = new int[]{a, b};
         return next++;
@@ -94,12 +103,12 @@ public class Problem {
 
     public int[] mult(int[] a, int b) {
         while (next + a.length > cap) { expand(); }
-        double bVal = vals[b];
+        int bVal = vals[b];
         int[] out = new int[a.length];
         for (int i = 0; i < a.length; i++) {
             int ind = next + i;
             int el = a[i];
-            vals[ind] = vals[el] * bVal;
+            vals[ind] = p.mult(vals[el], bVal);
             operations[ind] = MULT;
             operationElements[ind] = new int[]{el, b};
             out[i] = ind;
@@ -110,7 +119,7 @@ public class Problem {
 
     public int div(int a, int b) {
         if (next == cap) { expand(); }
-        vals[next] = vals[a] /vals[b];
+        vals[next] = p.div(vals[a], vals[b]);
         operations[next] = DIV;
         operationElements[next] = new int[]{a, b};
         return next++;
@@ -118,11 +127,7 @@ public class Problem {
 
     public int sum(int... arr) {
         if (next == cap) { expand(); }
-        double s = vals[arr[0]];
-        for (int i = 1; i < arr.length; i++) {
-            s += vals[arr[i]];
-        }
-        vals[next] = s;
+        vals[next] = p.sum(get(arr));
         operations[next] = SUM;
         operationElements[next] = Arrays.copyOf(arr, arr.length);
         return next++;
@@ -133,16 +138,13 @@ public class Problem {
 
         int l = arr.length * arr[0].length;
         int[] ops = new int[l];
-        double s = 0;
         int i = 0;
         for(int x = 0; x < arr.length; x++) {
             for(int y = 0; y < arr[0].length; y++) {
-                int a = arr[x][y];
-                ops[i++] = a;
-                s += vals[a];
+                ops[i++] = arr[x][y];
             }
         }
-        vals[next] = s;
+        vals[next] = p.sum(get(arr));
         operations[next] = SUM;
         operationElements[next] = ops;
         return next++;
@@ -150,11 +152,7 @@ public class Problem {
 
     public int prod(int... arr) {
         if (next == cap) { expand(); }
-        double s = vals[arr[0]];
-        for (int i = 1; i < arr.length; i++) {
-            s *= vals[arr[i]];
-        }
-        vals[next] = s;
+        vals[next] = p.prod(get(arr));
         operations[next] = PROD;
         operationElements[next] = Arrays.copyOf(arr, arr.length);
         return next++;
@@ -162,7 +160,7 @@ public class Problem {
 
     public int tanh(int a) {
         if (next == cap) { expand(); }
-        vals[next] = HMath.tanh(vals[a]);
+        vals[next] = p.tanh(vals[a]);
         operations[next] = TANH;
         operationElements[next] = new int[]{a};
         return next++;
@@ -170,7 +168,7 @@ public class Problem {
 
     public int sqrt(int a) {
         if (next == cap) { expand(); }
-        vals[next] = Math.sqrt(vals[a]);
+        vals[next] = p.sqrt(vals[a]);
         operations[next] = SQRT;
         operationElements[next] = new int[]{a};
         return next++;
@@ -178,23 +176,15 @@ public class Problem {
 
     public int ln(int a) {
         if (next == cap) { expand(); }
-        vals[next] = Math.log(vals[a]);
+        vals[next] = p.ln(vals[a]);
         operations[next] = LN;
-        operationElements[next] = new int[]{a};
-        return next++;
-    }
-
-    public int softplus(int a) {
-        if (next == cap) { expand(); }
-        vals[next] = Math.log(1 + HMath.exp(vals[a]));
-        operations[next] = SOFTPLUS;
         operationElements[next] = new int[]{a};
         return next++;
     }
 
     public int square(int a) {
         if (next == cap) { expand(); }
-        vals[next] = vals[a] * vals[a];
+        vals[next] = p.square(vals[a]);
         operations[next] = SQUARE;
         operationElements[next] = new int[]{a};
         return next++;
@@ -202,27 +192,15 @@ public class Problem {
 
     public int square(int[] a) {
         if (next == cap) { expand(); }
-        double s = 0;
-        for (int i = 0; i < a.length; i++) {
-            s += vals[a[i]] * vals[a[i]];
-        }
-        vals[next] = s;
+        vals[next] = p.square(get(a));
         operations[next] = SQUARE_VEC;
         operationElements[next] = Arrays.copyOf(a, a.length);
         return next++;
     }
 
-    public int[] softplus(int[] a) {
-        int[] out = new int[a.length];
-        for (int i = 0; i < out.length; i++) {
-            out[i] = softplus(a[i]);
-        }
-        return out;
-    }
-
     public int exp(int a) {
         if (next == cap) { expand(); }
-        vals[next] = Math.exp(vals[a]);
+        vals[next] = p.exp(vals[a]);
         operations[next] = EXP;
         operationElements[next] = new int[]{a};
         return next++;
@@ -230,7 +208,7 @@ public class Problem {
 
     public int invert(int a) {
         if (next == cap) { expand(); }
-        vals[next] = 1 / vals[a];
+        vals[next] = p.invert(vals[a]);
         operations[next] = INVERT;
         operationElements[next] = new int[]{a};
         return next++;
@@ -241,7 +219,6 @@ public class Problem {
         if (next == cap) { expand(); }
         int[] ops = new int[a.length * 2];
 
-        double s = vals[a[0]] * vals[b[0]];
         ops[0] = a[0];
         ops[1] = b[0];
 
@@ -249,9 +226,9 @@ public class Problem {
             int ind = 2 * i;
             ops[ind] = a[i];
             ops[ind + 1] = b[i];
-            s += vals[a[i]] * vals[b[i]];
         }
-        vals[next] = s;
+
+        vals[next] = p.dot(get(a), get(b));
         operations[next] = DOT;
         operationElements[next] = ops;
         return next++;
@@ -262,95 +239,113 @@ public class Problem {
         if (next == cap) { expand(); }
         int[] ops = new int[a.length * 2 + 1];
 
-        double s = vals[c];
         ops[0] = c;
-
         for (int i = 0; i < a.length; i++) {
             int ind = 2 * i + 1;
             ops[ind] = a[i];
             ops[ind + 1] = b[i];
-            s += vals[a[i]] * vals[b[i]];
         }
-        vals[next] = s;
+
+        vals[next] = p.dotAdd(get(a), get(b), vals[c]);
         operations[next] = DOT_ADD;
         operationElements[next] = ops;
         return next++;
     }
 
     public void backprop(int a) {
-        derivs = new double[next];
-        derivs[a] = 1;
+        int zero = p.constant(0.0);
+
+        derivs = new int[next];
+        for (int i = 0;i < next;i++) {
+            derivs[i] = zero;
+        }
+        derivs[a] = p.constant(1.0);
         while (next-- > 0) {
             int op = operations[next];
             if (op != NOTHING) {
-                double d = derivs[next];
+                int d = derivs[next];
                 if (d != 0) {
                     int[] ops = operationElements[next];
                     switch (operations[next]) {
                         case ADD:
-                            derivs[ops[0]] += d;
-                            derivs[ops[1]] += d;
+                            derivs[ops[0]] = p.add(derivs[ops[0]], d);
+                            derivs[ops[1]] = p.add(derivs[ops[1]], d);
                             break;
                         case MULT:
-                            derivs[ops[0]] += d * vals[ops[1]];
-                            derivs[ops[1]] += d * vals[ops[0]];
+                            derivs[ops[0]] = p.add(derivs[ops[0]],
+                                    p.mult(d, vals[ops[1]]));
+                            derivs[ops[1]] = p.add(derivs[ops[1]],
+                                    p.mult(d, vals[ops[0]]));
                             break;
                         case DIV:
-                            derivs[ops[0]] += d / vals[ops[1]];
-                            derivs[ops[1]] -= d * vals[ops[0]] / vals[ops[1]] / vals[ops[1]];
+
+                            derivs[ops[0]] = p.add(derivs[ops[0]],
+                                    p.div(d, vals[ops[1]]));
+                            derivs[ops[1]] = p.sub(derivs[ops[1]],
+                                    p.div(p.mult(d, vals[ops[0]]), p.square(vals[ops[1]])));
                             break;
                         case SUM:
                             for (int i = 0; i < ops.length; i++) {
-                                derivs[ops[i]] += d;
+                                derivs[ops[i]] = p.add(derivs[ops[i]], d);
                             }
                             break;
                         case PROD:
                             for (int i = 0; i < ops.length; i++) {
-                                derivs[ops[i]] += d * vals[next] / vals[ops[i]];
+                                derivs[ops[i]] = p.add(derivs[ops[i]],
+                                        p.div(p.mult(d, vals[next]), vals[ops[i]]));
                             }
                             break;
                         case TANH:
-                            derivs[ops[0]] += d * (1 - vals[next] * vals[next]);
+                            derivs[ops[0]] = p.add(derivs[ops[0]],
+                                    p.mult(d, p.sub(p.constant(1.0), p.square(vals[next]))));
                             break;
                         case EXP:
-                            derivs[ops[0]] += d * vals[next];
+                            derivs[ops[0]] = p.add(derivs[ops[0]],
+                                    p.mult(d, vals[next]));
                             break;
                         case DOT:
                             for (int i = 0; i < ops.length; i += 2) {
-                                derivs[ops[i]] += d * vals[ops[i + 1]];
-                                derivs[ops[i + 1]] += d * vals[ops[i]];
+                                derivs[ops[i]] = p.add(derivs[ops[i]],
+                                        p.mult(d, vals[ops[i + 1]]));
+                                derivs[ops[i + 1]] = p.add(derivs[ops[i + 1]],
+                                        p.mult(d, vals[ops[i]]));
                             }
                             break;
                         case DOT_ADD:
-                            derivs[ops[0]] += d;
+                            derivs[ops[0]] = p.add(derivs[ops[0]], d);
                             for (int i = 1; i < ops.length; i += 2) {
-                                derivs[ops[i]] += d * vals[ops[i + 1]];
-                                derivs[ops[i + 1]] += d * vals[ops[i]];
+                                derivs[ops[i]] = p.add(derivs[ops[i]],
+                                        p.mult(d, vals[ops[i + 1]]));
+                                derivs[ops[i + 1]] = p.add(derivs[ops[i + 1]],
+                                        p.mult(d, vals[ops[i]]));
                             }
                             break;
                         case SUB:
-                            derivs[ops[0]] += d;
-                            derivs[ops[1]] -= d;
-                            break;
-                        case SOFTPLUS:
-                            derivs[ops[0]] += d * HMath.sigmoid(vals[ops[0]]);
+                            derivs[ops[0]] = p.add(derivs[ops[0]], d);
+                            derivs[ops[1]] = p.sub(derivs[ops[1]], d);
                             break;
                         case SQUARE:
-                            derivs[ops[0]] += 2 * d * vals[ops[0]];
+                            derivs[ops[0]] = p.add(derivs[ops[0]],
+                                    p.prod(p.constant(2), d, vals[ops[0]]));
                             break;
                         case SQUARE_VEC:
+                            int two = p.constant(2);
                             for (int i = 0; i < ops.length; i++) {
-                                derivs[ops[i]] += 2 * d * vals[ops[i]];
+                                derivs[ops[i]] = p.add(derivs[ops[i]],
+                                        p.prod(two, d, vals[ops[i]]));
                             }
                             break;
                         case SQRT:
-                            derivs[ops[0]] += 0.5 * d / vals[next];
+                            derivs[ops[0]] = p.add(derivs[ops[0]],
+                                    p.div(p.mult(p.constant(0.5), d), vals[next]));
                             break;
                         case INVERT:
-                            derivs[ops[0]] -= d * vals[next] * vals[next];
+                            derivs[ops[0]] = p.sub(derivs[ops[0]],
+                                    p.prod(d, vals[next], vals[next]));
                             break;
                         case LN:
-                            derivs[ops[0]] += d / vals[ops[0]];
+                            derivs[ops[0]] = p.add(derivs[ops[0]],
+                                    p.div(d, vals[ops[0]]));
                             break;
                     }
                 }
@@ -403,115 +398,115 @@ public class Problem {
     }
 
 
-    public int[][][] convolve(int[][] im, int[][][] wts, int[] bias) {
-        int[][][] out = new int[wts.length][][];
-        for (int i = 0;i < out.length;i++) {
-            out[i] = convolve(im, wts[i], bias[i]);
-        }
-        return out;
-    }
-
-    public int[][][] convolve(int[][][] im, int[][][][] wts, int[] bias) {
-        int[][][] out = new int[wts.length][][];
-        for (int i = 0;i < out.length;i++) {
-            out[i] = convolve(im, wts[i], bias[i]);
-        }
-        return out;
-    }
-
-    public int[][] convolve(int[][][] im, int[][][] wts, int bias) {
-        int[][] out = new int[im[0].length + 1 - wts[0].length][im[0][0].length + 1 - wts[0][0].length];
-
-        int l1 = out.length, l2 = out[0].length;
-        int wl1 = wts.length, wl2 = wts[0].length, wl3 = wts[0][0].length;
-
-        int dotSize = wl1 * wl2 * wl3;
-
-        while (next + l1 * l2 >= cap) {
-            expand();
-        }
-
-        double bVal = vals[bias];
-
-        for (int x = 0; x < l1; x++) {
-            for (int y = 0; y < l2; y++) {
-                int[] ops = new int[dotSize * 2 + 1];
-
-                double v = bVal;
-                ops[0] = bias;
-                int i = 1;
-                for (int l = 0; l < wl1; l++) {
-                    int[][] weightLayer = wts[l];
-                    int[][] imageLayer = im[l];
-                    for (int ix = 0; ix < wl2; ix++) {
-                        int[] weightRow = weightLayer[ix];
-                        int[] imageRow = imageLayer[ix + x];
-                        for (int iy = 0; iy < wl3; iy++) {
-                            int wt = weightRow[iy];
-                            int img = imageRow[iy + y];
-
-                            v += vals[wt] * vals[img];
-                            ops[i++] = wt;
-                            ops[i++] = img;
-                        }
-                    }
-                }
-
-                vals[next] = v;
-                operations[next] = DOT_ADD;
-                operationElements[next] = ops;
-                out[x][y] = next++;
-            }
-        }
-
-        return out;
-    }
-
-
-
-    public int[][] convolve(int[][] im, int[][] wts, int bias) {
-        int[][] out = new int[im.length + 1 - wts.length][im[0].length + 1 - wts[0].length];
-
-        int l1 = out.length, l2 = out[0].length;
-        int wl1 = wts.length, wl2 = wts[0].length;
-
-        int dotSize = wl1 * wl2;
-
-        while (next + l1 * l2 >= cap) {
-            expand();
-        }
-
-        double bVal = vals[bias];
-
-        for (int x = 0; x < l1; x++) {
-            for (int y = 0; y < l2; y++) {
-                int[] ops = new int[dotSize * 2 + 1];
-
-                double v = bVal;
-                ops[0] = bias;
-                int i = 1;
-                for (int ix = 0; ix < wl1; ix++) {
-                    int[] weightsRow = wts[ix];
-                    int[] imageRow = im[ix + x];
-                    for (int iy = 0; iy < wl2; iy++) {
-                        int wt = weightsRow[iy];
-                        int img = imageRow[iy + y];
-
-                        v += vals[wt] * vals[img];
-                        ops[i++] = wt;
-                        ops[i++] = img;
-                    }
-                }
-
-                vals[next] = v;
-                operations[next] = DOT_ADD;
-                operationElements[next] = ops;
-                out[x][y] = next++;
-            }
-        }
-
-        return out;
-    }
+//    public int[][][] convolve(int[][] im, int[][][] wts, int[] bias) {
+//        int[][][] out = new int[wts.length][][];
+//        for (int i = 0;i < out.length;i++) {
+//            out[i] = convolve(im, wts[i], bias[i]);
+//        }
+//        return out;
+//    }
+//
+//    public int[][][] convolve(int[][][] im, int[][][][] wts, int[] bias) {
+//        int[][][] out = new int[wts.length][][];
+//        for (int i = 0;i < out.length;i++) {
+//            out[i] = convolve(im, wts[i], bias[i]);
+//        }
+//        return out;
+//    }
+//
+//    public int[][] convolve(int[][][] im, int[][][] wts, int bias) {
+//        int[][] out = new int[im[0].length + 1 - wts[0].length][im[0][0].length + 1 - wts[0][0].length];
+//
+//        int l1 = out.length, l2 = out[0].length;
+//        int wl1 = wts.length, wl2 = wts[0].length, wl3 = wts[0][0].length;
+//
+//        int dotSize = wl1 * wl2 * wl3;
+//
+//        while (next + l1 * l2 >= cap) {
+//            expand();
+//        }
+//
+//        double bVal = vals[bias];
+//
+//        for (int x = 0; x < l1; x++) {
+//            for (int y = 0; y < l2; y++) {
+//                int[] ops = new int[dotSize * 2 + 1];
+//
+//                double v = bVal;
+//                ops[0] = bias;
+//                int i = 1;
+//                for (int l = 0; l < wl1; l++) {
+//                    int[][] weightLayer = wts[l];
+//                    int[][] imageLayer = im[l];
+//                    for (int ix = 0; ix < wl2; ix++) {
+//                        int[] weightRow = weightLayer[ix];
+//                        int[] imageRow = imageLayer[ix + x];
+//                        for (int iy = 0; iy < wl3; iy++) {
+//                            int wt = weightRow[iy];
+//                            int img = imageRow[iy + y];
+//
+//                            v += vals[wt] * vals[img];
+//                            ops[i++] = wt;
+//                            ops[i++] = img;
+//                        }
+//                    }
+//                }
+//
+//                vals[next] = v;
+//                operations[next] = DOT_ADD;
+//                operationElements[next] = ops;
+//                out[x][y] = next++;
+//            }
+//        }
+//
+//        return out;
+//    }
+//
+//
+//
+//    public int[][] convolve(int[][] im, int[][] wts, int bias) {
+//        int[][] out = new int[im.length + 1 - wts.length][im[0].length + 1 - wts[0].length];
+//
+//        int l1 = out.length, l2 = out[0].length;
+//        int wl1 = wts.length, wl2 = wts[0].length;
+//
+//        int dotSize = wl1 * wl2;
+//
+//        while (next + l1 * l2 >= cap) {
+//            expand();
+//        }
+//
+//        double bVal = vals[bias];
+//
+//        for (int x = 0; x < l1; x++) {
+//            for (int y = 0; y < l2; y++) {
+//                int[] ops = new int[dotSize * 2 + 1];
+//
+//                double v = bVal;
+//                ops[0] = bias;
+//                int i = 1;
+//                for (int ix = 0; ix < wl1; ix++) {
+//                    int[] weightsRow = wts[ix];
+//                    int[] imageRow = im[ix + x];
+//                    for (int iy = 0; iy < wl2; iy++) {
+//                        int wt = weightsRow[iy];
+//                        int img = imageRow[iy + y];
+//
+//                        v += vals[wt] * vals[img];
+//                        ops[i++] = wt;
+//                        ops[i++] = img;
+//                    }
+//                }
+//
+//                vals[next] = v;
+//                operations[next] = DOT_ADD;
+//                operationElements[next] = ops;
+//                out[x][y] = next++;
+//            }
+//        }
+//
+//        return out;
+//    }
 
 
     public int[] div(int[] a, int b) {
@@ -659,13 +654,43 @@ public class Problem {
         return a;
     }
 
-    public double get(int a) {
+
+
+
+    public int[] constantFromP(int[] arr) {
+        int l = arr.length;
+        int[] a = new int[l];
+        for (int i = 0; i < l; i++) {
+            a[i] = constantFromP(arr[i]);
+        }
+        return a;
+    }
+
+    public int[][] constantFromP(int[][] arr) {
+        int l = arr.length;
+        int[][] a = new int[l][];
+        for (int i = 0; i < l; i++) {
+            a[i] = constantFromP(arr[i]);
+        }
+        return a;
+    }
+
+    public int[][][] constantFromP(int[][][] arr) {
+        int l = arr.length;
+        int[][][] a = new int[l][][];
+        for (int i = 0; i < l; i++) {
+            a[i] = constantFromP(arr[i]);
+        }
+        return a;
+    }
+
+    public int get(int a) {
         return vals[a];
     }
 
 
-    public double[] get(int[] a) {
-        double[] out = new double[a.length];
+    public int[] get(int[] a) {
+        int[] out = new int[a.length];
         for(int i = 0;i < out.length;i++) {
             out[i] = get(a[i]);
         }
@@ -673,8 +698,8 @@ public class Problem {
     }
 
 
-    public double[][] get(int[][] a) {
-        double[][] out = new double[a.length][];
+    public int[][] get(int[][] a) {
+        int[][] out = new int[a.length][];
         for(int i = 0;i < out.length;i++) {
             out[i] = get(a[i]);
         }
@@ -682,13 +707,13 @@ public class Problem {
     }
 
 
-    public double deriv(int a) {
+    public int deriv(int a) {
         return derivs[a];
     }
 
 
-    public double[] deriv(int[] a) {
-        double[] out = new double[a.length];
+    public int[] deriv(int[] a) {
+        int[] out = new int[a.length];
         for(int i = 0;i < out.length;i++) {
             out[i] = deriv(a[i]);
         }
@@ -696,8 +721,8 @@ public class Problem {
     }
 
 
-    public double[][] deriv(int[][] a) {
-        double[][] out = new double[a.length][];
+    public int[][] deriv(int[][] a) {
+        int[][] out = new int[a.length][];
         for(int i = 0;i < out.length;i++) {
             out[i] = deriv(a[i]);
         }
@@ -838,66 +863,53 @@ public class Problem {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public int[] elementwise(int[] in, Op1 op) {
-        int[] out = new int[in.length];
-        for (int i = 0; i < in.length; i++) {
-            out[i] = op.calculate(this, in[i]);
-        }
-        return out;
-    }
-
-    public int[] elementwise(int[] in1, int[] in2, Op2 op) {
-        int[] out = new int[in1.length];
-        for (int i = 0; i < in1.length; i++) {
-            out[i] = op.calculate(this, in1[i], in2[i]);
-        }
-        return out;
-    }
-
-    public int[][] elementwise(int[][] in, Op1 op) {
-        int[][] out = new int[in.length][];
-        for (int i = 0; i < in.length; i++) {
-            out[i] = elementwise(in[i], op);
-        }
-        return out;
-    }
-
-    public int[][] elementwise(int[][] in1, int[][] in2, Op2 op) {
-        int[][] out = new int[in1.length][];
-        for (int i = 0; i < in1.length; i++) {
-            out[i] = elementwise(in1[i], in2[i], op);
-        }
-        return out;
-    }
-
-    public int[][][] elementwise(int[][][] in, Op1 op) {
-        int[][][] out = new int[in.length][][];
-        for (int i = 0; i < in.length; i++) {
-            out[i] = elementwise(in[i], op);
-        }
-        return out;
-    }
-
-    public int[][][] elementwise(int[][][] in1, int[][][] in2, Op2 op) {
-        int[][][] out = new int[in1.length][][];
-        for (int i = 0; i < in1.length; i++) {
-            out[i] = elementwise(in1[i], in2[i], op);
-        }
-        return out;
-    }
+//    public int[] elementwise(int[] in, Op1 op) {
+//        int[] out = new int[in.length];
+//        for (int i = 0; i < in.length; i++) {
+//            out[i] = op.calculate(this, in[i]);
+//        }
+//        return out;
+//    }
+//
+//    public int[] elementwise(int[] in1, int[] in2, Op2 op) {
+//        int[] out = new int[in1.length];
+//        for (int i = 0; i < in1.length; i++) {
+//            out[i] = op.calculate(this, in1[i], in2[i]);
+//        }
+//        return out;
+//    }
+//
+//    public int[][] elementwise(int[][] in, Op1 op) {
+//        int[][] out = new int[in.length][];
+//        for (int i = 0; i < in.length; i++) {
+//            out[i] = elementwise(in[i], op);
+//        }
+//        return out;
+//    }
+//
+//    public int[][] elementwise(int[][] in1, int[][] in2, Op2 op) {
+//        int[][] out = new int[in1.length][];
+//        for (int i = 0; i < in1.length; i++) {
+//            out[i] = elementwise(in1[i], in2[i], op);
+//        }
+//        return out;
+//    }
+//
+//    public int[][][] elementwise(int[][][] in, Op1 op) {
+//        int[][][] out = new int[in.length][][];
+//        for (int i = 0; i < in.length; i++) {
+//            out[i] = elementwise(in[i], op);
+//        }
+//        return out;
+//    }
+//
+//    public int[][][] elementwise(int[][][] in1, int[][][] in2, Op2 op) {
+//        int[][][] out = new int[in1.length][][];
+//        for (int i = 0; i < in1.length; i++) {
+//            out[i] = elementwise(in1[i], in2[i], op);
+//        }
+//        return out;
+//    }
 
     public int[] zeros(int size) {
         int z = constant(0);
@@ -938,105 +950,105 @@ public class Problem {
 
     // 1dCircularConvolution
 
-    public int[][] convolveCirc1d(int[] im, int[][] wts, int[] bias) {
-        int[][] out = new int[wts.length][];
-        for (int i = 0;i < out.length;i++) {
-            out[i] = convolveCirc1d(im, wts[i], bias[i]);
-        }
-        return out;
-    }
-
-    public int[][] convolveCirc1d(int[][] im, int[][][] wts, int[] bias) {
-        int[][] out = new int[wts.length][];
-        for (int i = 0;i < out.length;i++) {
-            out[i] = convolveCirc1d(im, wts[i], bias[i]);
-        }
-        return out;
-    }
-
-    public int[] convolveCirc1d(int[][] im, int[][] wts, int bias) {
-
-
-
-        int[] out = new int[im[0].length];
-
-        int len = out.length;
-        int wl1 = wts.length, wl2 = wts[0].length;
-
-        int offset = im[0].length - (wl2 / 2);
-
-        int dotSize = wl1 * wl2;
-
-        while (next + len >= cap) {
-            expand();
-        }
-
-        double bVal = vals[bias];
-
-        for (int x = 0; x < len; x++) {
-            int[] ops = new int[dotSize * 2 + 1];
-
-            double v = bVal;
-            ops[0] = bias;
-            int i = 1;
-            for (int l = 0; l < wl1; l++) {
-                int[] weightLayer = wts[l];
-                int[] imageLayer = im[l];
-                for (int ix = 0; ix < wl2; ix++) {
-                    int wt = weightLayer[ix];
-                    int img = imageLayer[(ix + x + offset) % imageLayer.length];
-
-                    v += vals[wt] * vals[img];
-                    ops[i++] = wt;
-                    ops[i++] = img;
-                }
-            }
-
-            vals[next] = v;
-            operations[next] = DOT_ADD;
-            operationElements[next] = ops;
-            out[x] = next++;
-        }
-
-        return out;
-    }
-
-
-
-    public int[] convolveCirc1d(int[] im, int[] wts, int bias) {
-        int[] out = new int[im.length];
-
-        int l = out.length;
-        int wl = wts.length;
-
-        int offset = im.length - (wts.length / 2);
-
-        while (next + l >= cap) {
-            expand();
-        }
-
-        double bVal = vals[bias];
-
-        for (int x = 0; x < l; x++) {
-            int[] ops = new int[wl * 2 + 1];
-
-            double v = bVal;
-            ops[0] = bias;
-            int i = 1;
-            for (int ix = 0; ix < wl; ix++) {
-                int wt = wts[ix];
-                int img = im[(x + ix + offset) % im.length];
-                v += vals[wt] * vals[img];
-                ops[i++] = wt;
-                ops[i++] = img;
-            }
-
-            vals[next] = v;
-            operations[next] = DOT_ADD;
-            operationElements[next] = ops;
-            out[x] = next++;
-        }
-
-        return out;
-    }
+//    public int[][] convolveCirc1d(int[] im, int[][] wts, int[] bias) {
+//        int[][] out = new int[wts.length][];
+//        for (int i = 0;i < out.length;i++) {
+//            out[i] = convolveCirc1d(im, wts[i], bias[i]);
+//        }
+//        return out;
+//    }
+//
+//    public int[][] convolveCirc1d(int[][] im, int[][][] wts, int[] bias) {
+//        int[][] out = new int[wts.length][];
+//        for (int i = 0;i < out.length;i++) {
+//            out[i] = convolveCirc1d(im, wts[i], bias[i]);
+//        }
+//        return out;
+//    }
+//
+//    public int[] convolveCirc1d(int[][] im, int[][] wts, int bias) {
+//
+//
+//
+//        int[] out = new int[im[0].length];
+//
+//        int len = out.length;
+//        int wl1 = wts.length, wl2 = wts[0].length;
+//
+//        int offset = im[0].length - (wl2 / 2);
+//
+//        int dotSize = wl1 * wl2;
+//
+//        while (next + len >= cap) {
+//            expand();
+//        }
+//
+//        double bVal = vals[bias];
+//
+//        for (int x = 0; x < len; x++) {
+//            int[] ops = new int[dotSize * 2 + 1];
+//
+//            double v = bVal;
+//            ops[0] = bias;
+//            int i = 1;
+//            for (int l = 0; l < wl1; l++) {
+//                int[] weightLayer = wts[l];
+//                int[] imageLayer = im[l];
+//                for (int ix = 0; ix < wl2; ix++) {
+//                    int wt = weightLayer[ix];
+//                    int img = imageLayer[(ix + x + offset) % imageLayer.length];
+//
+//                    v += vals[wt] * vals[img];
+//                    ops[i++] = wt;
+//                    ops[i++] = img;
+//                }
+//            }
+//
+//            vals[next] = v;
+//            operations[next] = DOT_ADD;
+//            operationElements[next] = ops;
+//            out[x] = next++;
+//        }
+//
+//        return out;
+//    }
+//
+//
+//
+//    public int[] convolveCirc1d(int[] im, int[] wts, int bias) {
+//        int[] out = new int[im.length];
+//
+//        int l = out.length;
+//        int wl = wts.length;
+//
+//        int offset = im.length - (wts.length / 2);
+//
+//        while (next + l >= cap) {
+//            expand();
+//        }
+//
+//        double bVal = vals[bias];
+//
+//        for (int x = 0; x < l; x++) {
+//            int[] ops = new int[wl * 2 + 1];
+//
+//            double v = bVal;
+//            ops[0] = bias;
+//            int i = 1;
+//            for (int ix = 0; ix < wl; ix++) {
+//                int wt = wts[ix];
+//                int img = im[(x + ix + offset) % im.length];
+//                v += vals[wt] * vals[img];
+//                ops[i++] = wt;
+//                ops[i++] = img;
+//            }
+//
+//            vals[next] = v;
+//            operations[next] = DOT_ADD;
+//            operationElements[next] = ops;
+//            out[x] = next++;
+//        }
+//
+//        return out;
+//    }
 }

@@ -23,7 +23,7 @@ public class XorModel {
 
         for (int i = 0;i < itter;i++) {
             Problem p = new Problem();
-            nn.setWeights(p.constant(weights));
+            nn.setWeights(p, p.constant(weights));
             int l = loss(p, nn, X, y);
             p.backprop(l);
             for (int j = 0; j < 13; j++) {

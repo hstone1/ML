@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by henry on 8/21/17.
  */
-public class MnistTest {
+public class MnistTestSoftmaxPool {
     public static final int BATCH_SIZE = 100;
     public static final int NTHREADS = 20;
 
@@ -24,20 +24,19 @@ public class MnistTest {
 
         Model m = new LinearModel(
                 new Convolution(5, 5, 1,8,28,28, Activation.RELU),
-                new MaxPool(8, 24, 24, 2, 2),
+                new SoftmaxPool(8, 24, 24, 2, 2),
                 new Convolution(5, 5, 8,10,12,12, Activation.RELU),
-                new MaxPool(10, 8, 8, 2, 2),
+                new SoftmaxPool(10, 8, 8, 2, 2),
                 new DenseLayer(10 * 4 * 4, 40, Activation.RELU),
                 new DenseLayer(40, 10, Activation.SOFTMAX));
-
 
 //        Model m = new LinearModel(
 //                new Convolution(3, 3, 1,5,28,28, Activation.RELU),
 //                new Convolution(3, 3, 5,8,26,26, Activation.RELU),
-//                new MaxPool(8, 24, 24, 2, 2),
+//                new SoftmaxPool(8, 24, 24, 2, 2),
 //                new Convolution(3, 3, 8,10,12,12, Activation.RELU),
 //                new Convolution(3, 3, 10,10,10,10, Activation.RELU),
-//                new MaxPool(10, 8, 8, 2, 2),
+//                new SoftmaxPool(10, 8, 8, 2, 2),
 //                new DenseLayer(10 * 4 * 4, 40, Activation.RELU),
 //                new DenseLayer(40, 10, Activation.SOFTMAX));
 
@@ -65,12 +64,14 @@ public class MnistTest {
 
         Optimizer o = new SGD(0.05);
 
+
         for (int epoch = 0; epoch < 50; epoch++) {
             DataPrep.shuffle(X, Y);
             double loss = train.trainEpoch(X, Y, o, ErrorFunction.catagoricalCrossEntropy, 100, pool, 20);
             double tacc = testAccuracy(train, pool, Xtest, Ytest);
             System.out.println(loss + "\t" + tacc);
-            train.save("data/maxpool");
+            train.save("data/softmaxPool");
+
         }
 
         //train.save("data/trainVersion");

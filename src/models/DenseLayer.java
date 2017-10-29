@@ -33,12 +33,14 @@ public class DenseLayer implements Model {
         switch (act) {
             case TANH: return p.tanh(res);
             case SOFTPLUS: return p.softplus(res);
+            case RELU: return p.relu(res);
+            case SOFTMAX: return p.softmax(res);
             default: return res;
         }
     }
 
     @Override
-    public void setWeights(int[] weights) {
+    public void setWeights(Problem p, int[] weights) {
         mult = Weights.rip2(weights, 0, outputSize, inputSize);
         bias = Weights.rip1(weights, inputSize * outputSize, outputSize);
     }
