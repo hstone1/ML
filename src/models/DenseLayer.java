@@ -6,7 +6,7 @@ import utils.Weights;
 /**
  * Created by henry on 8/14/17.
  */
-public class DenseLayer implements Model {
+public class DenseLayer extends BasicModel {
     private int inputSize;
     private int outputSize;
 
@@ -28,7 +28,7 @@ public class DenseLayer implements Model {
 
 
     @Override
-    public int[] compute(Problem p, int[] input) {
+    public int[] compute(int[] input) {
         int[] res = p.add(p.mult(mult, input), bias);
         switch (act) {
             case TANH: return p.tanh(res);
@@ -40,7 +40,7 @@ public class DenseLayer implements Model {
     }
 
     @Override
-    public void setWeights(Problem p, int[] weights) {
+    public void _setWeights(Problem p, int[] weights) {
         mult = Weights.rip2(weights, 0, outputSize, inputSize);
         bias = Weights.rip1(weights, inputSize * outputSize, outputSize);
     }

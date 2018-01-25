@@ -6,35 +6,35 @@ import utils.Weights;
 /**
  * Created by henry on 8/14/17.
  */
-public class LinearModel implements Model{
-    Model[] layers;
+public class LinearModel extends BasicModel {
+    BasicModel[] layers;
 
-    public LinearModel(Model... layers) {
+    public LinearModel(BasicModel... layers) {
         this.layers = layers;
     }
 
     @Override
     public int neededWeights() {
         int weights = 0;
-        for (Model m : layers) {
+        for (BasicModel m : layers) {
             weights += m.neededWeights();
         }
         return weights;
     }
 
     @Override
-    public int[] compute(Problem p, int[] input) {
+    public int[] compute(int[] input) {
         int[] out = input;
-        for (Model layer : layers) {
-            out = layer.compute(p, out);
+        for (BasicModel layer : layers) {
+            out = layer.compute(out);
         }
         return out;
     }
 
     @Override
-    public void setWeights(Problem p, int[] weights) {
+    public void _setWeights(Problem p, int[] weights) {
         int end = 0;
-        for (Model layer : layers) {
+        for (BasicModel layer : layers) {
             int start = end;
             end += layer.neededWeights();
             layer.setWeights(p, Weights.rip1(weights, start, end - start));

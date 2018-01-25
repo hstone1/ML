@@ -2,10 +2,9 @@ package examples.NetworkConstruction;
 
 import backend.Problem;
 import models.Activation;
-import models.Model;
-import utils.Weights;
+import models.BasicModel;
 
-public class Network2D implements Model {
+public class Network2D extends BasicModel {
     private Activation activation;
     private int inputs;
     private int outputs;
@@ -34,12 +33,12 @@ public class Network2D implements Model {
     }
 
     @Override
-    public int[] compute(Problem p, int[] input) {
+    public int[] compute(int[] input) {
         return new int[0];
     }
 
     @Override
-    public void setWeights(Problem p, int[] weights) {
+    public void _setWeights(Problem p, int[] weights) {
         
     }
 }

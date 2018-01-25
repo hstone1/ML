@@ -2,7 +2,7 @@ package examples.xor;
 
 import backend.Problem;
 import initializers.Initializers;
-import models.Model;
+import models.BasicModel;
 import models.NeuralNetwork;
 
 /**
@@ -19,7 +19,7 @@ public class XorModel {
         double[][] X = new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}};
         double[] y = new double[]{0, 1, 1, 0};
 
-        Model nn = new NeuralNetwork(2, 3, 1);
+        BasicModel nn = new NeuralNetwork(2, 3, 1);
 
         for (int i = 0;i < itter;i++) {
             Problem p = new Problem();
@@ -34,13 +34,13 @@ public class XorModel {
         System.out.println(String.format("Execution time for %d iterations: %.3fs", itter, 0.001 * (System.currentTimeMillis() - t1)));
     }
 
-    public static int loss(Problem p, Model m, double[][] X, double[] Y) {
+    public static int loss(Problem p, BasicModel m, double[][] X, double[] Y) {
         int[][] x = p.constant(X);
         int[] y = p.constant(Y);
 
         int[] err = new int[y.length];
         for (int i = 0; i < y.length; i++) {
-            err[i] = p.sub(y[i], m.compute(p, x[i])[0]);
+            err[i] = p.sub(y[i], m.compute(x[i])[0]);
         }
         return p.dot(err, err);
     }

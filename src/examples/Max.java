@@ -1,7 +1,6 @@
 package examples;
 
 import models.*;
-import optimizers.Adagrad;
 import optimizers.Optimizer;
 import optimizers.SGD;
 
@@ -22,7 +21,7 @@ public class Max {
             y[i][0] = X[i][0] > X[i][1] ? X[i][0] : X[i][1];
         }
 
-        Model m = new LinearModel(
+        BasicModel m = new LinearModel(
                 new DenseLayer(2, 8, Activation.TANH),
                 new DenseLayer(8, 1, Activation.LINEAR));
         Optimizer o = new SGD(0.1);

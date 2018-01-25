@@ -6,28 +6,28 @@ import utils.Weights;
 /**
  * Created by henry on 8/20/17.
  */
-public class Split implements Model{
-    Model[] models;
+public class Split extends BasicModel {
+    BasicModel[] models;
 
-    public Split(Model... models){
+    public Split(BasicModel... models){
         this.models = models;
     }
 
     @Override
     public int neededWeights() {
         int nw = 0;
-        for (Model m : models) {
+        for (BasicModel m : models) {
             nw += m.neededWeights();
         }
         return nw;
     }
 
     @Override
-    public int[] compute(Problem p, int[] input) {
+    public int[] compute(int[] input) {
         int[][] outs = new int[models.length][];
         int len = 0;
         for (int i = 0; i < models.length; i++) {
-            outs[i] = models[i].compute(p, input);
+            outs[i] = models[i].compute(input);
             len += outs[i].length;
         }
 
@@ -41,9 +41,9 @@ public class Split implements Model{
     }
 
     @Override
-    public void setWeights(Problem p, int[] weights) {
+    public void _setWeights(Problem p, int[] weights) {
         int end = 0;
-        for (Model m : models) {
+        for (BasicModel m : models) {
             int start = end;
             end += m.neededWeights();
             m.setWeights(p, Weights.rip1(weights, start, end - start));

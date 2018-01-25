@@ -14,4 +14,10 @@ public class Initializers {
     public static Initializer uniformSmall = () -> r.nextDouble() - 0.2;
 
     public static Initializer normalSmall = () -> r.nextGaussian() * 0.2;
+
+    public static Initializer constant(double c) {
+            return () -> c;
+    }
+
+
 }

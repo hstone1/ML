@@ -9,9 +9,7 @@ import java.util.Scanner;
 public class Weights {
     public static int[] rip1(int[] arr, int start, int width) {
         int[] out = new int[width];
-        for (int i = 0; i < width; i++) {
-            out[i] = arr[start + i];
-        }
+        System.arraycopy(arr, start, out, 0, width);
         return out;
     }
 

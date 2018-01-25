@@ -2,20 +2,18 @@ package examples.meta_learning;
 
 import backend.MetaProblem;
 import backend.Problem;
-import initializers.Initializer;
 import initializers.Initializers;
-import models.Model;
+import models.BasicModel;
 import models.NeuralNetwork;
 import optimizers.Adagrad;
 import optimizers.Optimizer;
-import optimizers.SGD;
 import utils.Weights;
 
 import java.util.Arrays;
 
 public class Activations {
     public static void main(String[] args) {
-        Model metaNN = new NeuralNetwork(1,5,1);
+        BasicModel metaNN = new NeuralNetwork(1,5,1);
 
         double[] metaWeights = new double[metaNN.neededWeights()];
         Initializers.uniformSmall.fill(metaWeights);
@@ -42,7 +40,7 @@ public class Activations {
         }
     }
 
-    public static int randomLoss(Problem p, Model meta) {
+    public static int randomLoss(Problem p, BasicModel meta) {
         double[][] x = new double[5][2];
         double[] y = new double[5];
         Initializers.easy.fill(x);
@@ -50,7 +48,7 @@ public class Activations {
         return loss(p, meta, x, y);
     }
 
-    public static int loss(Problem p, Model meta, double[][] X, double[] Y) {
+    public static int loss(Problem p, BasicModel meta, double[][] X, double[] Y) {
         int[][] pX = p.constant(X);
         int[] pY = p.constant(Y);
 

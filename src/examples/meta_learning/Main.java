@@ -2,14 +2,14 @@ package examples.meta_learning;
 
 import backend.Problem;
 import initializers.Initializers;
-import models.Model;
+import models.BasicModel;
 import models.NeuralNetwork;
 import optimizers.Adagrad;
 import optimizers.Optimizer;
 
 public class Main {
     public static void main(String[] args) {
-        Model m = new NeuralNetwork(2,5,1);
+        BasicModel m = new NeuralNetwork(2,5,1);
         double[] weights = new double[m.neededWeights()];
         Initializers.uniformSmall.fill(weights);
 
@@ -32,7 +32,7 @@ public class Main {
         }
     }
 
-    public static int randomLoss(Problem p, Model m) {
+    public static int randomLoss(Problem p, BasicModel m) {
         double[][] x = new double[5][2];
         double[] y = new double[5];
         Initializers.uniform.fill(x);
@@ -40,7 +40,7 @@ public class Main {
         return loss(p, m, x, y);
     }
 
-    public static int loss(Problem p, Model m, double[][] X, double[] Y) {
+    public static int loss(Problem p, BasicModel m, double[][] X, double[] Y) {
         int[][] x = p.constant(X);
         int[] y = p.constant(Y);
 
@@ -58,7 +58,7 @@ public class Main {
 
             int[] lrs = new int[derivs.length];
             for (int d = 0; d < lrs.length; d++) {
-                lrs[d] = m.compute(p, new int[]{
+                lrs[d] = m.compute(new int[]{
                         averageDerivsSquared,
                         derivs[d]})[0];
             }

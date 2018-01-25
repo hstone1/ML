@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/2048/2048.iml" filepath="$PROJECT_DIR$/2048/2048.iml" />
+      <module fileurl="file://$PROJECT_DIR$/molecules/molecules.iml" filepath="$PROJECT_DIR$/molecules/molecules.iml" />
       <module fileurl="file://$PROJECT_DIR$/speed grad.iml" filepath="$PROJECT_DIR$/speed grad.iml" />
     </modules>
   </component>

@@ -8,8 +8,8 @@ public class NeuralNetwork extends LinearModel {
         super(generateModels(lSize));
     }
 
-    private static Model[] generateModels(int... lSize) {
-        Model[] layers = new Model[lSize.length - 1];
+    private static BasicModel[] generateModels(int... lSize) {
+        BasicModel[] layers = new BasicModel[lSize.length - 1];
         for (int i = 0;i < lSize.length - 2; i++) {
             layers[i] = new DenseLayer(lSize[i], lSize[i + 1], Activation.TANH);
         }

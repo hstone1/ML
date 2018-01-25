@@ -3,7 +3,7 @@ package models;
 import backend.Problem;
 import utils.Weights;
 
-public class SoftmaxPool implements Model{
+public class SoftmaxPool extends BasicModel {
     private int layers, imageHeight, imageWidth;
     private int size, stride;
 
@@ -21,7 +21,7 @@ public class SoftmaxPool implements Model{
     }
 
     @Override
-    public int[] compute(Problem p, int[] input) {
+    public int[] compute(int[] input) {
         return Weights.reshape(p.softmaxPool(
                 Weights.reshape(input, layers, imageHeight, imageWidth),
                 scaleConstants, size, stride));
@@ -30,7 +30,7 @@ public class SoftmaxPool implements Model{
     int[] scaleConstants;
 
     @Override
-    public void setWeights(Problem p, int[] weights) {
+    public void _setWeights(Problem p, int[] weights) {
         scaleConstants = weights;
     }
 }

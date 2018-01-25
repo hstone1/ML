@@ -22,7 +22,7 @@ public class MnistTest {
     public static void main(String[] args) {
         boolean test = false;
 
-        Model m = new LinearModel(
+        BasicModel m = new LinearModel(
                 new Convolution(5, 5, 1,8,28,28, Activation.RELU),
                 new MaxPool(8, 24, 24, 2, 2),
                 new Convolution(5, 5, 8,10,12,12, Activation.RELU),
@@ -31,7 +31,7 @@ public class MnistTest {
                 new DenseLayer(40, 10, Activation.SOFTMAX));
 
 
-//        Model m = new LinearModel(
+//        BasicModel m = new LinearModel(
 //                new Convolution(3, 3, 1,5,28,28, Activation.RELU),
 //                new Convolution(3, 3, 5,8,26,26, Activation.RELU),
 //                new MaxPool(8, 24, 24, 2, 2),
@@ -42,7 +42,7 @@ public class MnistTest {
 //                new DenseLayer(40, 10, Activation.SOFTMAX));
 
 
-//        Model m = new LinearModel(
+//        BasicModel m = new LinearModel(
 //                new DenseLayer(28 * 28, 50, Activation.RELU),
 //                new DenseLayer(50, 10, Activation.SOFTMAX));
 

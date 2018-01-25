@@ -3,7 +3,7 @@ package models;
 import backend.Problem;
 import utils.Weights;
 
-public class MaxPool implements Model{
+public class MaxPool extends BasicModel {
     private int layers, imageHeight, imageWidth;
     private int size, stride;
 
@@ -21,14 +21,14 @@ public class MaxPool implements Model{
     }
 
     @Override
-    public int[] compute(Problem p, int[] input) {
+    public int[] compute(int[] input) {
         return Weights.reshape(p.maxPool(
                 Weights.reshape(input, layers, imageHeight, imageWidth),
                 size, stride));
     }
 
     @Override
-    public void setWeights(Problem p, int[] weights) {
+    public void _setWeights(Problem p, int[] weights) {
         // do nothing, there are no weights
     }
 }

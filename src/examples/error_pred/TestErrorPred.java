@@ -24,7 +24,7 @@ public class TestErrorPred {
 
         Optimizer o = new SGD(0.01);
         ErrorFunction e = new DeviationError();
-        Model m = new LinearModel(
+        BasicModel m = new LinearModel(
                 new DenseLayer(1, 5, Activation.TANH),
                 new DenseLayer(5, 5, Activation.TANH),
                 new Split(
