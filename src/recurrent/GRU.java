@@ -10,10 +10,17 @@ public class GRU extends CombinedModel{
     MatrixMatrixBias hiddenModel;
 
 
-    public GRU(int inputSize, int hiddenSize, int outputSize) {
-        rModel = new MatrixMatrixBias(inputSize, hiddenSize, outputSize);
-        zModel = new MatrixMatrixBias(inputSize, hiddenSize, outputSize);
-        hiddenModel = new MatrixMatrixBias(inputSize, hiddenSize, outputSize);
+
+    public GRU(int inputSize, int hiddenSize) {
+        rModel = new MatrixMatrixBias(inputSize, hiddenSize, hiddenSize);
+        zModel = new MatrixMatrixBias(inputSize, hiddenSize, hiddenSize);
+        hiddenModel = new MatrixMatrixBias(inputSize, hiddenSize, hiddenSize);
+
+        setupSubmodels(
+                rModel,
+                zModel,
+                hiddenModel
+        );
     }
 
     // Returns next hidden
@@ -21,22 +28,14 @@ public class GRU extends CombinedModel{
         int[] r = p.sigmoid(rModel.compute(input, hidden));
         int[] z = p.sigmoid(zModel.compute(input, hidden));
 
-        int one = p.constant(1);
-        int[] hiddenNext = p.mult(z, hidden) +
-                p.elementwise(, (p, val) -> p.sub(p))
+        int[] oneMinusZ = p.elementwise(z, (p, e) -> p.sub(p.one(), e));
+        int[] hiddenNext =
+                p.add(
+                        p.mult(z, hidden),
+                        p.tanh(p.mult(
+                                oneMinusZ,
+                                hiddenModel.compute(input, p.mult(r, hidden)))));
 
-
-                hiddenModel.compute(input, p.mult(r, hidden));
-        return null;
-    }
-
-    @Override
-    public int neededWeights() {
-        return 0;
-    }
-
-    @Override
-    public void _setWeights(Problem p, int[] weights) {
-
+        return hiddenNext;
     }
 }

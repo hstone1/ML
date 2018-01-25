@@ -8,7 +8,7 @@ public class MatrixMatrixBias extends CombinedModel{
 
     public MatrixMatrixBias(int inputSize1, int inputSize2, int outputSize) {
         mat1 = new Matrix(inputSize1, outputSize);
-        mat1 = new Matrix(inputSize2, outputSize);
+        mat2 = new Matrix(inputSize2, outputSize);
         bias = new Bias(outputSize);
 
         setupSubmodels(mat1, mat2, bias);
