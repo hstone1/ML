@@ -28,6 +28,31 @@ public class Problem {
     private static final byte LN = 16;
     private static final byte SIGMOID = 17;
 
+    private int one = -1;
+    private int nOne = -1;
+    private int zero = -1;
+
+    public int one() {
+        if (one == -1) {
+            one = constant(1);
+        }
+        return one;
+    }
+
+    public int zero() {
+        if (zero == -1) {
+            zero = constant(0);
+        }
+        return zero;
+    }
+
+    public int negativeOne() {
+        if (nOne == -1) {
+            nOne = constant(-1);
+        }
+        return nOne;
+    }
+
     public Problem() {
         vals = new double[CAP];
         operations = new byte[CAP];
@@ -145,6 +170,29 @@ public class Problem {
         operations[next] = SUM;
         operationElements[next] = Arrays.copyOf(arr, arr.length);
         return next++;
+    }
+
+    public int[] sum_arrays(int[]... arrays) {
+        int len = arrays[0].length;
+        while (next + len > cap) { expand(); }
+
+        int[] out = new int[len];
+
+        for (int i = 0; i < len; i++) {
+            int[] elements = new int[arrays.length];
+            double v = 0;
+            for (int j = 0; j < arrays.length; j++) {
+                int a = arrays[j][i];
+                elements[j] = a;
+                v += vals[a];
+            }
+            vals[next] = v;
+            operations[next] = SUM;
+            operationElements[next] = elements;
+            out[i] = next++;
+        }
+
+        return out;
     }
 
     public int sum(int[][] arr) {
@@ -401,7 +449,7 @@ public class Problem {
 
 
 
-    public int average(int[] in) {
+    public int average(int... in) {
         return mult(sum(in), constant(1.0 / in.length));
     }
 
@@ -648,7 +696,7 @@ public class Problem {
         int l1 = a.length;
         int[] out = new int[l1];
 
-        int z = constant(0);
+        int z = zero();
         for (int i1 = 0; i1 < l1; i1++) {
                 out[i1] = vals[a[i1]] > 0 ? a[i1] : z;
         }
@@ -659,7 +707,7 @@ public class Problem {
         int l1 = a.length, l2 = a[0].length;
         int[][] out = new int[l1][l2];
 
-        int z = constant(0);
+        int z = zero();
         for (int i1 = 0; i1 < l1; i1++) {
             for (int i2 = 0; i2 < l2; i2++) {
                 out[i1][i2] = vals[a[i1][i2]] > 0 ? a[i1][i2] : z;
@@ -672,7 +720,7 @@ public class Problem {
         int l1 = a.length, l2 = a[0].length, l3 = a[0][0].length;
         int[][][] out = new int[l1][l2][l3];
 
-        int z = constant(0);
+        int z = zero();
         for (int i1 = 0; i1 < l1; i1++) {
             for (int i2 = 0; i2 < l2; i2++) {
                 for (int i3 = 0; i3 < l3; i3++) {
@@ -890,6 +938,29 @@ public class Problem {
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public int getMarker() {
         return next;
     }
@@ -960,7 +1031,7 @@ public class Problem {
     }
 
     public int[] zeros(int size) {
-        int z = constant(0);
+        int z = zero();
         int[] out = new int[size];
         for (int i = 0;i < size;i++) {
             out[i] = z;
@@ -1097,5 +1168,13 @@ public class Problem {
         }
 
         return out;
+    }
+
+    public int floor(int var) {
+        return constant(Math.floor(vals[var]));
+    }
+
+    public int ceil(int var) {
+        return constant(Math.ceil(vals[var]));
     }
 }

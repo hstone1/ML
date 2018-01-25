@@ -19,5 +19,7 @@ public class Initializers {
             return () -> c;
     }
 
+    public static Initializer zeros = () -> 0.0;
 
+    public static Initializer ones = () -> 1.0;
 }
