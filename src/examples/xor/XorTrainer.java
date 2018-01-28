@@ -17,7 +17,7 @@ public class XorTrainer {
         double[][] X = new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}};
         double[][] y = new double[][]{{0}, {1}, {1}, {0}};
 
-        Model nn = new LinearModel(
+        BasicModel nn = new LinearModel(
                 new DenseLayer(2, 3, Activation.TANH),
                 new DenseLayer(3, 1, Activation.LINEAR));
         Trainer t = new Trainer(nn);

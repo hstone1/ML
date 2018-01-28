@@ -6,7 +6,6 @@ import initializers.Initializer;
 import initializers.Initializers;
 import optimizers.Optimizer;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,9 +18,9 @@ public class Trainer {
     private static ErrorFunction error = ErrorFunction.MeanSquaredError;
 
     public double[] weights;
-    Model m;
+    BasicModel m;
 
-    public Trainer(Model m, Initializer init) {
+    public Trainer(BasicModel m, Initializer init) {
         this.m = m;
         weights = new double[m.neededWeights()];
         for (int i = 0;i < weights.length;i++) {
@@ -29,7 +28,7 @@ public class Trainer {
         }
     }
 
-    public Trainer(Model m) {
+    public Trainer(BasicModel m) {
         this(m, def);
     }
 
@@ -45,7 +44,7 @@ public class Trainer {
 
         int[] err = new int[y.length];
         for (int i = 0; i < y.length; i++) {
-            err[i] = e.error(p, y[i], m.compute(p, x[i]));
+            err[i] = e.error(p, y[i], m.compute(x[i]));
         }
 
         int l = p.mult(p.sum(err), p.constant(1.0 / X.length));
@@ -135,7 +134,7 @@ public class Trainer {
 
                     int[] err = new int[y.length];
                     for (int i = 0; i < y.length; i++) {
-                        err[i] = ef.error(p, y[i], m.compute(p, x[i]));
+                        err[i] = ef.error(p, y[i], m.compute(x[i]));
                     }
 
                     int l = p.mult(p.sum(err), p.constant(1.0 / X.length));
@@ -218,7 +217,7 @@ public class Trainer {
         Problem p = new Problem();
         int[] wts = p.constant(weights);
         m.setWeights(p, wts);
-        return p.get(m.compute(p, p.constant(in)));
+        return p.get(m.compute(p.constant(in)));
     }
 
     public double[][] predict(double[][] in) {
@@ -229,7 +228,7 @@ public class Trainer {
         m.setWeights(p, wts);
 
         for (int i = 0;i < in.length; i++) {
-            out[i] = p.get(m.compute(p, p.constant(in[i])));
+            out[i] = p.get(m.compute(p.constant(in[i])));
         }
 
         return out;
@@ -258,7 +257,7 @@ public class Trainer {
 
                     double[][] out = new double[tin.length][];
                     for (int i = 0;i < tin.length; i++) {
-                        out[i] = p.get(m.compute(p, p.constant(tin[i])));
+                        out[i] = p.get(m.compute(p.constant(tin[i])));
                     }
 
                     return out;
@@ -295,7 +294,7 @@ public class Trainer {
             m.setWeights(p, wts);
 
             for (int i = 0;i < chunk; i++) {
-                out[a] = p.get(m.compute(p, p.constant(in[a])));
+                out[a] = p.get(m.compute(p.constant(in[a])));
                 a++;
             }
         }

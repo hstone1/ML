@@ -3,7 +3,7 @@ package models;
 import backend.Problem;
 import utils.Weights;
 
-public class Convolution implements Model {
+public class Convolution extends BasicModel {
     private int inputLayers, outputLayers;
     private int imageHeight, imageWidth;
     private int convolutionHeight, convolutionWidth;
@@ -29,7 +29,7 @@ public class Convolution implements Model {
     }
 
     @Override
-    public int[] compute(Problem p, int[] input) {
+    public int[] compute(int[] input) {
         int[][][] image = Weights.reshape(input, inputLayers, imageHeight, imageWidth);
         int[][][] output = p.convolve(image, wts, biases);
         switch (activation){
@@ -48,7 +48,7 @@ public class Convolution implements Model {
     private int[] biases;
 
     @Override
-    public void setWeights(Problem p, int[] weights) {
+    public void _setWeights(Problem p, int[] weights) {
         biases = Weights.rip1(weights, 0, outputLayers);
         wts = Weights.rip4(weights, outputLayers,
                 outputLayers, inputLayers, convolutionHeight, convolutionWidth);

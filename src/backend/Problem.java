@@ -26,6 +26,7 @@ public class Problem {
     private static final byte SQRT = 14;
     private static final byte INVERT = 15;
     private static final byte LN = 16;
+    private static final byte SIGMOID = 17;
 
     private int one = -1;
     private int nOne = -1;
@@ -133,6 +134,24 @@ public class Problem {
         return out;
     }
 
+    public int[] mult(int[] a, int[] b) {
+        while (next + a.length > cap) { expand(); }
+        int[] out = new int[a.length];
+        for (int i = 0; i < a.length; i++) {
+            int ind = next + i;
+            int el = a[i];
+            int bel = b[i];
+            vals[ind] = vals[el] * vals[bel];
+            operations[ind] = MULT;
+            operationElements[ind] = new int[]{el, bel};
+            out[i] = ind;
+        }
+        next += a.length;
+        return out;
+    }
+
+
+
     public int div(int a, int b) {
         if (next == cap) { expand(); }
         vals[next] = vals[a] /vals[b];
@@ -215,6 +234,15 @@ public class Problem {
         operationElements[next] = new int[]{a};
         return next++;
     }
+    public int sigmoid(int a) {
+        if (next == cap) { expand(); }
+        vals[next] = (HMath.tanh(vals[a] / 2) + 1) / 2;
+        operations[next] = SIGMOID;
+        operationElements[next] = new int[]{a};
+        return next++;
+    }
+
+
 
     public int sqrt(int a) {
         if (next == cap) { expand(); }
@@ -400,6 +428,10 @@ public class Problem {
                         case LN:
                             derivs[ops[0]] += d / vals[ops[0]];
                             break;
+                        case SIGMOID:
+                            derivs[ops[0]] += d * vals[next] * (1 - vals[next]);
+                            break;
+
                     }
                 }
             }
@@ -630,6 +662,34 @@ public class Problem {
         }
         return out;
     }
+
+
+    public int[] sigmoid(int[] a) {
+        int[] out = new int[a.length];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = sigmoid(a[i]);
+        }
+        return out;
+    }
+
+    public int[][] sigmoid(int[][] a) {
+        int[][] out = new int[a.length][];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = sigmoid(a[i]);
+        }
+        return out;
+    }
+
+    public int[][][] sigmoid(int[][][] a) {
+        int[][][] out = new int[a.length][][];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = sigmoid(a[i]);
+        }
+        return out;
+    }
+
+
+
 
 
     public int[] relu(int[] a) {
@@ -992,6 +1052,18 @@ public class Problem {
         return bestInd;
     }
 
+    public int argmax(int[] a) {
+        double best = vals[a[0]];
+        int bestInd = 0;
+        for (int i = 1; i < a.length; i++) {
+            double v = vals[a[i]];
+            if (v > best) {
+                best = v;
+                bestInd = i;
+            }
+        }
+        return bestInd;
+    }
 
 
 
@@ -1006,6 +1078,9 @@ public class Problem {
 
 
 
+
+
+    //TODO circular convolutions need further testing
 
     // 1dCircularConvolution
 
@@ -1026,9 +1101,6 @@ public class Problem {
     }
 
     public int[] convolveCirc1d(int[][] im, int[][] wts, int bias) {
-
-
-
         int[] out = new int[im[0].length];
 
         int len = out.length;
@@ -1118,4 +1190,14 @@ public class Problem {
     public int ceil(int var) {
         return constant(Math.ceil(vals[var]));
     }
+
+    public int[] onehot(int size, int elem) {
+        int[] out = new int[size];
+        for (int i = 0; i < size; i++) {
+            out[i] = zero();
+        }
+        out[elem] = one();
+        return out;
+    }
+
 }
