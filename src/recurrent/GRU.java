@@ -9,9 +9,14 @@ public class GRU extends CombinedModel{
     MatrixMatrixBias zModel;
     MatrixMatrixBias hiddenModel;
 
+    public int hiddenSize;
+    public int inputSize;
 
 
     public GRU(int inputSize, int hiddenSize) {
+        this.inputSize = inputSize;
+        this.hiddenSize = hiddenSize;
+
         rModel = new MatrixMatrixBias(inputSize, hiddenSize, hiddenSize);
         zModel = new MatrixMatrixBias(inputSize, hiddenSize, hiddenSize);
         hiddenModel = new MatrixMatrixBias(inputSize, hiddenSize, hiddenSize);

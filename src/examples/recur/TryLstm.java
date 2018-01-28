@@ -4,33 +4,33 @@ import backend.Problem;
 import initializers.Initializers;
 import optimizers.Adagrad;
 import optimizers.Optimizer;
-import optimizers.SGD;
 import recurrent.GRU;
+import recurrent.LSTM;
 
-import java.util.Arrays;
-
-public class TryGru {
+public class TryLstm {
     public static void main(String[] args){
-        GRU gru = new GRU(2, 5);
+        LSTM lstm = new LSTM(2, 15);
         Optimizer o = new Adagrad(0.005);
 
 
-        double[] weights = new double[gru.neededWeights()];
+        double[] weights = new double[lstm.neededWeights()];
         Initializers.normalSmall.fill(weights);
 
 
-        for (int i = 0; i < 10000; i++) {
-            double[] init = new double[5];
+        for (int i = 0; i < 50000; i++) {
+            double[] init = new double[15];
 
             Problem p = new Problem();
 
             int[] hiddenInit = p.constant(init);
             int[] wts = p.constant(weights);
-            gru.setWeights(p, wts);
+            lstm.setWeights(p, wts);
 
             int loss = p.zero();
 
-            for (int j = 0; j < 100; j++) {
+
+
+            for (int j = 0; j < 1000; j++) {
                 double[][] inputs = new double[][]{
                         {Math.random(), Math.random()},
                         {Math.random(), Math.random()},
@@ -41,16 +41,20 @@ public class TryGru {
                 double max = inputs[0][0] + inputs[1][1];
 
                 int y = p.constant(max);
-                int[] hidden = hiddenInit;
+
+                int[] memory = hiddenInit;
+                int[] cState = hiddenInit;
                 int[][] inp = p.constant(inputs);
 
                 for (int k = 0; k < inputs.length; k++) {
-                    hidden = gru.run(inp[k], hidden);
+                    int[][] out = lstm.run(inp[k], memory, cState);
+                    memory = out[0];
+                    cState = out[1];
                 }
 
 
 
-                loss = p.add(loss, p.square(p.sub(p.mult(hidden[0], p.constant(2)), y)));
+                loss = p.add(loss, p.square(p.sub(p.mult(memory[0], p.constant(2)), y)));
             }
 
             p.backprop(loss);
@@ -60,7 +64,7 @@ public class TryGru {
 
             if (i % 100 == 0) {
                 // System.out.println(Arrays.toString(p.deriv(wts)));
-                System.out.println(p.get(loss) / 100);
+                System.out.println((i / 100) + ": " + (p.get(loss) / 1000));
             }
 
 

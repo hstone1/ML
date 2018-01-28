@@ -1052,6 +1052,19 @@ public class Problem {
         return bestInd;
     }
 
+    public int argmax(int[] a) {
+        double best = vals[a[0]];
+        int bestInd = 0;
+        for (int i = 1; i < a.length; i++) {
+            double v = vals[a[i]];
+            if (v > best) {
+                best = v;
+                bestInd = i;
+            }
+        }
+        return bestInd;
+    }
+
 
 
 
@@ -1177,4 +1190,14 @@ public class Problem {
     public int ceil(int var) {
         return constant(Math.ceil(vals[var]));
     }
+
+    public int[] onehot(int size, int elem) {
+        int[] out = new int[size];
+        for (int i = 0; i < size; i++) {
+            out[i] = zero();
+        }
+        out[elem] = one();
+        return out;
+    }
+
 }
