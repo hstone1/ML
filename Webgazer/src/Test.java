@@ -25,12 +25,12 @@ public class Test {
         for (int i = 0;i < 72450;i++) {
             double dx = tobbi_locs[i][0] - webgazer_locs[i][0];
             double dy = tobbi_locs[i][1] - webgazer_locs[i][1];
-            double d = Math.pow(dx * dx + dy * dy, 0.01);
+            double d = Math.pow(dx * dx + dy * dy, 1);
             errorSumWebgazer += d;
 
             dx = tobbi_locs[i][0] - means[0];
             dy = tobbi_locs[i][1] - means[1];
-            d = Math.pow(dx * dx + dy * dy, 0.01);
+            d = Math.pow(dx * dx + dy * dy, 1);
             errorMean += d;
         }
 

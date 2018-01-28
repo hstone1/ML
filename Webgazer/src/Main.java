@@ -1,15 +1,10 @@
 import backend.Problem;
-import data.ArrayData;
 import initializers.Initializers;
 import initializers.NumpyF8Initializer;
 import initializers.NumpyU1Initializer;
 import optimizers.Adagrad;
 import optimizers.Optimizer;
-import optimizers.SGD;
-import utils.DataPrep;
 import utils.Weights;
-
-import java.util.Arrays;
 
 /**
  * Created by henry on 12/1/17.
